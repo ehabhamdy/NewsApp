@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
     List<Results> results = new ArrayList<>();
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,11 +53,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
         adapter = new NewsAdapter(results, this);
         newsRecyclerView.setAdapter(adapter);
         toggleEmptyView(results);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
         getSupportLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -111,9 +108,6 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
 
             @Override
             public void deliverResult(List<Results> data) {
-                news = data;
-                toggleEmptyView(news);
-                adapter.setData(news);
                 super.deliverResult(data);
             }
         };
@@ -121,7 +115,8 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
 
     @Override
     public void onLoadFinished(Loader<List<Results>> loader, List<Results> data) {
-
+        toggleEmptyView(data);
+        adapter.setData(data);
     }
 
     @Override
