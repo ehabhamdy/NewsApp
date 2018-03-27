@@ -1,6 +1,9 @@
 package com.ehab.newsapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -10,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ehab.newsapp.model.Results;
@@ -38,8 +42,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
 
     NewsAdapter adapter;
     List<Results> results = new ArrayList<>();
-
-
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,13 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
         newsRecyclerView.setAdapter(adapter);
         toggleEmptyView(results);
 
-        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        if(isConnected()) {
+            getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        }else{
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText("No Internet Connection");
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -169,5 +178,14 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
             newsRecyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
+    }
+
+    private Boolean isConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager) MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 }
