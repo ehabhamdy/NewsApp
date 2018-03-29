@@ -15,8 +15,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ehab.newsapp.model.Results;
+import com.ehab.newsapp.model.Tag;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
     public static final int LOADER_ID = 22;
     public static final String BASE_URL = "https://content.guardianapis.com/search?";
     final String APIKEY_PARAM = "api-key";
+    final String TAGS_PARAM = "show-tags";
+
 
     RecyclerView newsRecyclerView;
     TextView emptyView;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         emptyView = findViewById(R.id.empty_view);
+        progressBar = findViewById(R.id.progressBar);
         newsRecyclerView = findViewById(R.id.newsRecylerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
             emptyView.setVisibility(View.VISIBLE);
             emptyView.setText("No Internet Connection");
             progressBar.setVisibility(View.INVISIBLE);
+            Toast.makeText(this, "Please enable your internet connection", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -83,9 +89,10 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
 
                 Uri uri = Uri.parse(BASE_URL)
                         .buildUpon()
+                        .appendQueryParameter(TAGS_PARAM, "contributor")
                         .appendQueryParameter(APIKEY_PARAM, "test")
                         .build();
-
+                String U = uri.toString();
                 URL url = null;
                 try {
                     url = new URL(uri.toString());
@@ -126,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
     public void onLoadFinished(Loader<List<Results>> loader, List<Results> data) {
         toggleEmptyView(data);
         adapter.setData(data);
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -162,7 +170,16 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.Recyc
             result.setIsHosted(newsItem.getString("isHosted"));
             result.setPillarId(newsItem.getString("pillarId"));
             result.setPillarName(newsItem.getString("pillarName"));
-
+            JSONArray tagsJSON = newsItem.getJSONArray("tags");
+            Tag[] tags = new Tag[tagsJSON.length()];
+            for (int j = 0; j < tagsJSON.length(); j++) {
+                JSONObject tagItem = tagsJSON.getJSONObject(j);
+                String authorName = tagItem.getString("webTitle");
+                Tag tag = new Tag();
+                tag.setWebTitle(authorName);
+                tags[j] = tag;
+            }
+            result.setTags(tags);
             parsedNewsData.add(result);
         }
 

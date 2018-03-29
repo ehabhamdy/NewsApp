@@ -22,6 +22,8 @@ public class Results{
 
     private String webTitle;
 
+    private Tag[] tags;
+
     private String type;
 
     private String webPublicationDate;
@@ -70,6 +72,14 @@ public class Results{
 
     public String getApiUrl() {
         return apiUrl;
+    }
+
+    public Tag[] getTags() {
+        return tags;
+    }
+
+    public void setTags(Tag[] tags) {
+        this.tags = tags;
     }
 
     public void setApiUrl(String apiUrl) {
